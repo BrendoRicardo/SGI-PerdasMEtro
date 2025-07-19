@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: flask-app-render
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: ./start.sh
+    envVars:
+      - key: FLASK_SECRET_KEY
+        value: uma_chave_super_secreta
