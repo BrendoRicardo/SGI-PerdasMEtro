@@ -1,15 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
+    <meta charset="UTF-8" />
     <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #094780;
+            padding: 3px 20px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .top-bar .info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar .info span:first-child {
+            font-weight: bold;
+        }
+
+        .top-bar a {
+            color: white;
+            text-decoration: none;
+            background-color: red;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        iframe {
+            flex-grow: 1;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-    <h2>Bem-vindo, {{ perfil }}</h2>
-    {% if url_powerbi %}
-        <a href="{{ url_powerbi }}" target="_blank">Acessar Power BI</a><br>
-    {% else %}
-        <p>Acesso ao Power BI não autorizado para seu perfil.</p>
-    {% endif %}
-    <a href="{{ url_for('logout') }}">Sair</a>
+    <div class="container">
+        <div class="top-bar">
+            <div class="info">
+                <span>Olá, {{ session['usuario'] }}</span>
+            </div>
+            <a href="/logout">Logout</a>
+        </div>
+
+        {% if url_powerbi %}
+            <iframe src="{{ url_powerbi }}"></iframe>
+        {% else %}
+            <p style="text-align: center;">Perfil não autorizado para visualizar este conteúdo.</p>
+        {% endif %}
+    </div>
 </body>
 </html>
