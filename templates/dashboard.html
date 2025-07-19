@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <h2>Bem-vindo, {{ perfil }}</h2>
+    {% if url_powerbi %}
+        <a href="{{ url_powerbi }}" target="_blank">Acessar Power BI</a><br>
+    {% else %}
+        <p>Acesso ao Power BI não autorizado para seu perfil.</p>
+    {% endif %}
+    <a href="{{ url_for('logout') }}">Sair</a>
+</body>
+</html>
