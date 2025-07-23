@@ -13,7 +13,7 @@
         }
 
         body {
-            background-image: url(/static/CAPA-SGI.png);
+            background-image: url("{{ url_for('static', filename='CAPA-SGI.png') }}");
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
