@@ -1,51 +1,55 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 30px;
-        }
-        h1 {
-            margin-bottom: 30px;
-        }
-        .botao {
-            display: inline-block;
-            padding: 15px 25px;
-            margin: 10px;
-            background-color: #0077cc;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-        .botao:hover {
-            background-color: #005fa3;
-        }
-    </style>
-</head>
-<body>
-    <h1>Bem-vindo, {{ perfil }}!</h1>
+from flask import Flask, render_template, request, redirect, url_for, session
+import os
 
-    {% if perfil == 'ADM' %}
-        <a class="botao" href="https://app.powerbi.com/view?r=LINK_PBI_ADMIN" target="_blank">Relatório Geral (ADM)</a>
-        <a class="botao" href="https://app.powerbi.com/view?r=LINK_PBI_NIVEL1" target="_blank">Relatório Nível 1</a>
-        <a class="botao" href="https://app.powerbi.com/view?r=LINK_PBI_NIVEL2" target="_blank">Relatório Nível 2</a>
-        <a class="botao" href="https://app.powerbi.com/view?r=LINK_PBI_NIVEL3" target="_blank">Relatório Nível 3</a>
-    {% elif perfil == 'NIVEL1' %}
-        <a class="botao" href="https://app.powerbi.com/view?r=LINK_PBI_NIVEL1" target="_blank">Relatório Nível 1</a>
-    {% elif perfil == 'NIVEL2' %}
-        <a class="botao" href="https://app.powerbi.com/view?r=LINK_PBI_NIVEL2" target="_blank">Relatório Nível 2</a>
-    {% elif perfil == 'NIVEL3' %}
-        <a class="botao" href="https://app.powerbi.com/view?r=LINK_PBI_NIVEL3" target="_blank">Relatório Nível 3</a>
-    {% else %}
-        <p>Seu perfil não tem acesso a relatórios.</p>
-    {% endif %}
+app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "chave_fallback_segura")
 
-    <p style="margin-top: 40px;">
-        <a href="{{ url_for('logout') }}">Sair</a>
-    </p>
-</body>
-</html>
+usuarios = {
+    "Admin": {"senha": "Admin", "perfil": "ADM"},
+    "Perfil1": {"senha": "Perfil1", "perfil": "NIVEL1"},
+    "Perfil2": {"senha": "Perfil2", "perfil": "NIVEL2"},
+    "Perfil3": {"senha": "Perfil3", "perfil": "NIVEL3"}
+}
+
+@app.route("/", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        usuario = request.form["usuario"]
+        senha = request.form["senha"]
+
+        if usuario in usuarios and usuarios[usuario]["senha"] == senha:
+            session["usuario"] = usuario
+            session["perfil"] = usuarios[usuario]["perfil"]
+            return redirect(url_for("dashboard"))
+        else:
+            return render_template("login.html", erro="Usuário ou senha inválidos")
+    return render_template("login.html")
+
+@app.route("/dashboard")
+def dashboard():
+    if "usuario" not in session:
+        return redirect(url_for("login"))
+
+    perfil = session.get("perfil")
+
+    link_powerbi = "https://app.powerbi.com/view?r=eyJrIjoiMzExOWJjY2QtZmM4NC00YzUxLWE2MjYtMTViMjNhODQ3MWEzIiwidCI6ImFiMjQwN2E1LTMxOWEtNGRmOS1hOGI4LTM1MjgwNTRjYzEzZSJ9"
+
+    if perfil in ["ADM", "NIVEL1", "NIVEL2", "NIVEL3"]:
+        url_powerbi = link_powerbi
+    else:
+        url_powerbi = None
+
+    return render_template("dashboard.html", perfil=perfil, url_powerbi=url_powerbi)
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+@app.route("/ping")
+def ping():
+    return "pong", 200
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port, debug=True)  # debug=True para facilitar o debug
